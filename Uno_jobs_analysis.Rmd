@@ -1,0 +1,92 @@
+---
+title: "UNO_jobs_analysis"
+author: "stewarta"
+date: "22 January 2018"
+output: html_document
+---
+
+The data I am analysing today is from the UNO website. It is from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes.
+
+```{r}
+library(xlsx)
+library(ggplot2)
+library(plyr)
+jobsdf <- read.xlsx("UNO_jobs.xlsx", sheetName = "Feuil1")
+head(jobsdf)
+```
+
+Let's see how often the same job families are wanted:
+
+```{r, echo=FALSE}
+plot <- ggplot(jobsdf, aes(x = jobsdf$Job.Family)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+plot
+```
+
+more specific let's pull up the top 10
+
+```{r, echo=FALSE}
+tbl_jobs <- count(jobsdf$Job.Family)
+print("top 10 jobs that have positions available:")
+most_wanted_jobs <- tbl_jobs[order(-tbl_jobs$freq),]
+head(most_wanted_jobs, n=10)
+```
+
+The dataframe also indicates the job level wanted but I had to look up what it means:
+
+http://www.unfpa.org/resources/united-nations-staff-categories
+
+Professional  (P) and Director (D) staff
+
+P1 - No work experience required
+
+P2 - Minimum of 2 years of work experience
+
+P3 - Minimum of 5 years of work experience
+
+P4 - Minimum of 7 years of work experience
+
+P5 - Minimum of 10 years of work experience
+
+D1 - Minimum of 15 years of work experience
+
+D2 - More than 15 years of work experience
+
+General Service  (G) staff
+
+G1 - No work experience required
+
+G2 - Minimum of 2 years of work experience
+
+G3 - Minimum of 3 years of work experience
+
+G4 - Minimum of 4 years of work experience
+
+G5 - Minimum of 5 years of work experience
+
+G6 - Minimum of 6 years of work experience
+
+G7 - Minimum of 7 years of work experience
+
+National Professional  Officers (NO)
+
+NOA - No work experience required
+NOB - Minimum of 2 years of work experience
+
+NOC - Minimum of 5 years of work experience
+
+NOD - Minimum of 7 years of work experience
+
+```{r, echo=FALSE}
+plot <- ggplot(jobsdf, aes(x = jobsdf$Level)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+plot
+
+```
+
+So the most wanted kind of job is P3 - Minimum of 5 years of work experience followed by P4 - Minimum of 7 years of work experience. The number of P2 is very limited as is any position as director. It looks like non of us are going to be recruted right after PhD!
+
+Now let's look at internships:
+
+```{r, echo=FALSE}
+internshipsdf <- read.xlsx("UNO_jobs_internships.xlsx", sheetName = "Feuil1")
+head(jobsdf)
+```
