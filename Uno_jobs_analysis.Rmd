@@ -7,13 +7,18 @@ output: html_document
 
 The data I am analysing today is from the UNO website. It is from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes.
 
-```{r, echo=FALSE}
+# Jobs dataframe
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(xlsx)
 library(ggplot2)
 library(plyr)
+library(knitr)
 jobsdf <- read.xlsx("UNO_jobs.xlsx", sheetName = "Feuil1")
-head(jobsdf)
+kable(jobsdf[1:10,])
 ```
+
+## Job family where most people are hired
 
 Let's see how often the same job families are wanted:
 
@@ -26,10 +31,11 @@ more specific let's pull up the top 10
 
 ```{r, echo=FALSE}
 tbl_jobs <- count(jobsdf$Job.Family)
-print("top 10 jobs that have positions available:")
 most_wanted_jobs <- tbl_jobs[order(-tbl_jobs$freq),]
-head(most_wanted_jobs, n=10)
+kable(most_wanted_jobs[1:10,])
 ```
+
+## Minimum number of years of experience for recruitment and quantity of people hired per level
 
 The dataframe also indicates the job level wanted but I had to look up what it means:
 
@@ -80,24 +86,47 @@ NOD - Minimum of 7 years of work experience
 ```{r, echo=FALSE}
 plot <- ggplot(jobsdf, aes(x = jobsdf$Level)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 plot
-
 ```
 
 So the most wanted kind of job is P3 - Minimum of 5 years of work experience followed by P4 - Minimum of 7 years of work experience. The number of P2 is very limited as is any position as director. It looks like none of us are going to be recruted right after PhD!
 
-But where are we mostly going to be recruited:
+## Countries where most people are recruited
 
 ```{r, echo=FALSE}
 plot <- ggplot(jobsdf, aes(x = jobsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 plot
-
 ```
- A vast majority of people are recruited at the main headquarters in New York, and most of the rest in Geneva, the rest are not recruiting very much.
+
+A vast majority of people are recruited at the main headquarters in New York, and most of the rest in Geneva, the others are not recruiting very much.
+ 
+## Department office where most people are recruited 
+ 
+```{r, echo=FALSE}
+tbl <- data.frame(table(jobsdf$Department.Office))
+kable(tbl[tbl$Freq > 10,])
+```
+
+# internships dataframe
  
 Now let's look at internships:
 
 ```{r, echo=FALSE}
 internshipsdf <- read.xlsx("UNO_jobs_internships.xlsx", sheetName = "Feuil1")
-head(jobsdf)
+kable(internshipsdf[1:10,])
 ```
 
+
+```{r, echo=FALSE}
+tbl <- data.frame(table(internshipsdf$Department.Office))
+kable(tbl[tbl$Freq > 10,])
+```
+
+
+
+
+```{r, echo=FALSE}
+plot <- ggplot(internshipsdf, aes(x = internshipsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+plot
+```
+
+For internships the tendency is a little bit different, the proportion in New york is less compared to Bankok and Geneva which recruit the same number of interns. Cities like Vienna also stand out more. So for internships although New York is still vastly where the majority of interns end up it is less overwhelming than for actual jobs.
