@@ -1,91 +1,96 @@
 ---
-title: "UNO_jobs_analysis"
+title: "UN job offers analysis"
 author: "stewarta"
-date: "22 January 2018"
+date: "11 February 2018"
 output: html_document
 ---
 
-The data I am analysing today is from the UNO website. It is from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes.
+The data I am analysing today is from the United Nations (UN) website and I got it on the 22/01/2018, so if you try to use the code on data from after that date, your results may be different. The data comes from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes. I am interested in where people are recruited in the words, what departments and types of jobs are recruiting the most and what level of experience people must have to fill the requirements to be recruited. As a biologist I don't expect there to be many opportinities for me except perhaps in environmental science and ecology. 
 
-# Jobs dataframe
+# A first look at the Jobs dataset
+
+Let's first have a look at what kind of information we can find in this dataset:
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(xlsx)
 library(ggplot2)
 library(plyr)
 library(knitr)
+library(sqldf)
 jobsdf <- read.xlsx("UNO_jobs.xlsx", sheetName = "Feuil1")
-kable(jobsdf[1:10,])
+kable(jobsdf[1:10,1:4])
 ```
+
+As the data is quite large I cannot display the full table, so let's look at the column names to give us an idea of what we can study: `r colnames(jobsdf)`.
 
 ## Job family where most people are hired
 
-Let's see how often the same job families are wanted:
+Let's see what job families there are and look at how many offers they have each:
 
 ```{r, echo=FALSE}
-plot <- ggplot(jobsdf, aes(x = jobsdf$Job.Family)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
-plot
+ggplot(jobsdf, aes(x = jobsdf$Job.Family)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 ```
 
-more specific let's pull up the top 10
+So there is a lot of variety there, which is to be expected. To see better let's pull up the top 10 in a table:
 
 ```{r, echo=FALSE}
-tbl_jobs <- count(jobsdf$Job.Family)
+tbl_jobs <- count(jobsdf$Job.Family) # from plyr library
 most_wanted_jobs <- tbl_jobs[order(-tbl_jobs$freq),]
 kable(most_wanted_jobs[1:10,])
 ```
 
+So research in ecology is not in the top 10... Too bad for me! If you're into Political affairs, Project management or Public information, you're in luck. Wait... does making a blog about environmental data science count as Public information?
+
 ## Minimum number of years of experience for recruitment and quantity of people hired per level
 
-The dataframe also indicates the job level wanted but I had to look up what it means:
+Now is when we find out if we will ever have a shot at working for the UN. I had to look up on the website what the job level codes are, and reported them below so we can make sense of the data:
 
 http://www.unfpa.org/resources/united-nations-staff-categories
 
 Professional  (P) and Director (D) staff
 
-P1 - No work experience required
+ - P1 - No work experience required
 
-P2 - Minimum of 2 years of work experience
+ - P2 - Minimum of 2 years of work experience
 
-P3 - Minimum of 5 years of work experience
+ - P3 - Minimum of 5 years of work experience
 
-P4 - Minimum of 7 years of work experience
+ - P4 - Minimum of 7 years of work experience
 
-P5 - Minimum of 10 years of work experience
+ - P5 - Minimum of 10 years of work experience
 
-D1 - Minimum of 15 years of work experience
+ - D1 - Minimum of 15 years of work experience
 
-D2 - More than 15 years of work experience
+ - D2 - More than 15 years of work experience
 
-General Service  (G) staff
+General Service (G) staff
 
-G1 - No work experience required
+ - G1 - No work experience required
 
-G2 - Minimum of 2 years of work experience
+ - G2 - Minimum of 2 years of work experience
 
-G3 - Minimum of 3 years of work experience
+ - G3 - Minimum of 3 years of work experience
 
-G4 - Minimum of 4 years of work experience
+ - G4 - Minimum of 4 years of work experience
 
-G5 - Minimum of 5 years of work experience
+ - G5 - Minimum of 5 years of work experience
 
-G6 - Minimum of 6 years of work experience
+ - G6 - Minimum of 6 years of work experience
 
-G7 - Minimum of 7 years of work experience
+ - G7 - Minimum of 7 years of work experience
 
 National Professional  Officers (NO)
 
-NOA - No work experience required
+ - NOA - No work experience required
 
-NOB - Minimum of 2 years of work experience
+ - NOB - Minimum of 2 years of work experience
 
-NOC - Minimum of 5 years of work experience
+ - NOC - Minimum of 5 years of work experience
 
-NOD - Minimum of 7 years of work experience
+ - NOD - Minimum of 7 years of work experience
 
 ```{r, echo=FALSE}
-plot <- ggplot(jobsdf, aes(x = jobsdf$Level)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
-plot
+ggplot(jobsdf, aes(x = jobsdf$Level)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 ```
 
 So the most wanted kind of job is P3 - Minimum of 5 years of work experience followed by P4 - Minimum of 7 years of work experience. The number of P2 is very limited as is any position as director. It looks like none of us are going to be recruted right after PhD!
@@ -93,40 +98,75 @@ So the most wanted kind of job is P3 - Minimum of 5 years of work experience fol
 ## Countries where most people are recruited
 
 ```{r, echo=FALSE}
-plot <- ggplot(jobsdf, aes(x = jobsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
-plot
+ggplot(jobsdf, aes(x = jobsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 ```
 
-A vast majority of people are recruited at the main headquarters in New York, and most of the rest in Geneva, the others are not recruiting very much.
+A vast majority of people are recruited at the main headquarters in New York, and most of the rest in Geneva, the others are not recruiting very much. Sadly, that means not much work for us in France!
  
 ## Department office where most people are recruited 
  
+There are difference department offices people can be recruited to which all have very fancy names and sound like they are going to save the world but again, they don't all recruit the same number of interns so let's look at the ones that recruit the most: 
+
 ```{r, echo=FALSE}
-tbl <- data.frame(table(jobsdf$Department.Office))
-kable(tbl[tbl$Freq > 10,])
+tbl <- count(jobsdf$Department.Office)
+kable(tbl[tbl$freq > 10,])
 ```
 
-# internships dataframe
- 
-Now let's look at internships:
+# Internship job offers dataset
+
+This dataset was also downloaded on the same date as the jobs dataset. As before, let's have a first look at how the dataset is structured:
 
 ```{r, echo=FALSE}
 internshipsdf <- read.xlsx("UNO_jobs_internships.xlsx", sheetName = "Feuil1")
-kable(internshipsdf[1:10,])
+kable(internshipsdf[1:10,1:4])
 ```
 
+It has mostly the same columns as the jobs dataset, so we can use the same code as before to explore it. It has one difference: the job level requirement is always the same, I1, which means there is no difference in requirements of experience unlike the jobs dataset.
+
+## Department offices where most interns are sent
+
+There are a total of `r nrow(internshipsdf)` different internship offers in our dataset. We want to look closer at department offices: there are `r length(unique(internshipsdf$Department.Office))` different ones. Let's pull up the department offices that have more than 10 interns sent in our dataset:
 
 ```{r, echo=FALSE}
-tbl <- data.frame(table(internshipsdf$Department.Office))
-kable(tbl[tbl$Freq > 10,])
+tbl <- count(internshipsdf$Department.Office)
+tbl <- tbl[order(-tbl$freq),]
+kable(tbl[tbl$freq > 10,])
 ```
 
+The department that has significantly more intern jobs in our dataset is the Economic and Social Commission for Asia and the Pacific.  In the list with more than 10 jobs there is also the Office of the High Commissioner for Human Rights. I was also happy to see the United Nations Environment Programme was also high up in the list.
 
-
+## Cities that recruit the most interns
 
 ```{r, echo=FALSE}
-plot <- ggplot(internshipsdf, aes(x = internshipsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
-plot
+ggplot(internshipsdf, aes(x = internshipsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
 ```
 
 For internships the tendency is a little bit different, the proportion in New york is less compared to Bankok and Geneva which recruit the same number of interns. Cities like Vienna also stand out more. So for internships although New York is still vastly where the majority of interns end up it is less overwhelming than for actual jobs.
+
+That's all for now, I'm open to other ideas or representations to code if you have any, and if you're interested in the code it is down below. This report was generated with Rmarkdown and compiled to html. See you soon,
+
+Adeline
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
+library(xlsx)
+library(ggplot2)
+library(plyr)
+library(knitr)
+library(sqldf)
+jobsdf <- read.xlsx("UNO_jobs.xlsx", sheetName = "Feuil1")
+kable(jobsdf[1:10,1:4])
+ggplot(jobsdf, aes(x = jobsdf$Job.Family)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+tbl_jobs <- count(jobsdf$Job.Family) # from plyr library
+most_wanted_jobs <- tbl_jobs[order(-tbl_jobs$freq),]
+kable(most_wanted_jobs[1:10,])
+ggplot(jobsdf, aes(x = jobsdf$Level)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+ggplot(jobsdf, aes(x = jobsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+tbl <- count(jobsdf$Department.Office)
+kable(tbl[tbl$freq > 10,])
+internshipsdf <- read.xlsx("UNO_jobs_internships.xlsx", sheetName = "Feuil1")
+kable(internshipsdf[1:10,1:4])
+tbl <- count(internshipsdf$Department.Office)
+tbl <- tbl[order(-tbl$freq),]
+kable(tbl[tbl$freq > 10,])
+ggplot(internshipsdf, aes(x = internshipsdf$Duty.station)) + geom_bar() + theme(axis.text.x  = element_text(angle=90, vjust=0, hjust = 1))
+```
