@@ -5,7 +5,7 @@ date: "11 February 2018"
 output: html_document
 ---
 
-The data I am analysing today is from the United Nations (UN) website and I got it on the 22/01/2018, so if you try to use the code on data from after that date, your results may be different. The data comes from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes. I am interested in where people are recruited in the words, what departments and types of jobs are recruiting the most and what level of experience people must have to fill the requirements to be recruited. As a biologist I don't expect there to be many opportinities for me except perhaps in environmental science and ecology. 
+The data I am analysing today is from the United Nations (UN) website and I got it on the 22/01/2018, so if you try to use the code on data from after that date, your results may be different. The data comes from the careers page where they have all their job offers. They separate their jobs into different categories, which I all downloaded into different excel spreadsheets and parsed using the xlsx package into dataframes. I am interested in where people are recruited in the world, what departments and types of jobs are recruiting the most and what level of experience people must have to fill the requirements to be recruited. As a biologist I don't expect there to be many opportinities for me except perhaps in environmental science and ecology. 
 
 # A first look at the Jobs dataset
 
@@ -39,7 +39,7 @@ most_wanted_jobs <- tbl_jobs[order(-tbl_jobs$freq),]
 kable(most_wanted_jobs[1:10,])
 ```
 
-So research in ecology is not in the top 10... Too bad for me! If you're into Political affairs, Project management or Public information, you're in luck. Wait... does making a blog about environmental data science count as Public information?
+So research in ecology is not in the top 10... Too bad for me! If you're into Political affairs, Project management or Public information, you're in luck.
 
 ## Minimum number of years of experience for recruitment and quantity of people hired per level
 
